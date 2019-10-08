@@ -123,7 +123,7 @@ class Complex:
     def print_complex(self, real_parts, imaginary_parts):
         """ description """
         sign = '+' if imaginary_parts >= 0 else ''
-        return '{}{}{}j'.format(real_parts, sign, imaginary_parts)
+        return '({}{}{}j)'.format(round(real_parts), sign, round(imaginary_parts))
 
     def __str__(self):
         """ description """
@@ -150,13 +150,20 @@ class Complex:
 
     def __truediv__(self, other):
         """ description """
-        return self.print_complex(self)
+        second_part = (other.get_real_parts() ** 2 + other.get_imaginary_parts() ** 2)
+
+        return self.print_complex((self.get_real_parts() * other.get_real_parts() +
+                                   ((self.get_imaginary_parts() * (other.get_imaginary_parts()) * -1) * -1))
+                                  / second_part,
+                                  (self.get_real_parts() * (other.get_imaginary_parts() * -1) +
+                                   self.get_imaginary_parts() * other.get_real_parts())
+                                  / second_part)
 
 
-w = 2
-e = 2
-x = 3
-d = -6
+w = 13
+e = 1
+x = -7
+d = 6
 
 a = Complex(w, e)
 b = Complex(x, d)
