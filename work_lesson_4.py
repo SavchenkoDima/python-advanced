@@ -1,153 +1,154 @@
-# a = tuple([1, 2])
-#
-# print(type(type(a)))
-# print(type(int))
-#
-# my_class = type(
-#     'classExample',
-#     (),
-#     {
-#         'attr_1': 100,
-#         'attr_2': 200,
-#         'get_attr_1': lambda self: self.attr_1,
-#         'get_attr_2': lambda self: self.attr_2,
-#     }
-# )
-#
-# obj = my_class()
-# print(obj.get_attr_2())
-#
-# print(type(obj))
+a = tuple([1, 2])
+
+print(type(type(a)))
+print(type(int))
+
+my_class = type(
+    'classExample',
+    (),
+    {
+        'attr_1': 100,
+        'attr_2': 200,
+        'get_attr_1': lambda self: self.attr_1,
+        'get_attr_2': lambda self: self.attr_2,
+    }
+)
+
+obj = my_class()
+print(obj.get_attr_2())
+
+print(type(obj))
 
 
-# class MyMetaClass(type):
-#
-#     def __new__(mcs, name, base, attrs):
-#         print(name, base, attrs)
-#
-#         if 'CLASSFIELD1' in attrs:
-#             raise Exception('Error')
-#
-#         if attrs.get("CLASS_FIELD_1", 0) < 100:
-#             attrs["CLASS_FIELD_1"] = 1000
-#
-#         if attrs.get('verywell'):
-#             attrs['verywell'] = 'my_value'
-#         return super().__new__(mcs, name, base, attrs)
-#
-#
-# class OurClass(metaclass=MyMetaClass):
-#     CLASS_FIELD_1 = 1
-#     CLASS_FIELD_2 = 2
-#
-#     def __init__(self, value):
-#         self._value = value
-#
-# print(OurClass.CLASS_FIELD_1)
+class MyMetaClass(type):
+
+    def __new__(mcs, name, base, attrs):
+        print(name, base, attrs)
+
+        if 'CLASSFIELD1' in attrs:
+            raise Exception('Error')
+
+        if attrs.get("CLASS_FIELD_1", 0) < 100:
+            attrs["CLASS_FIELD_1"] = 1000
+
+        if attrs.get('verywell'):
+            attrs['verywell'] = 'my_value'
+        return super().__new__(mcs, name, base, attrs)
+
+
+class OurClass(metaclass=MyMetaClass):
+    CLASS_FIELD_1 = 1
+    CLASS_FIELD_2 = 2
+
+    def __init__(self, value):
+        self._value = value
+
+print(OurClass.CLASS_FIELD_1)
 
 
 from abc import ABC, abstractmethod
 
 
-#
-#
-# class Vehicle(ABC):
-#
-#     @abstractmethod
-#     def move(self):
-#         print("moving")
-#
-#
-# class Car(Vehicle):
-#
-#     def __init__(self, model):
-#         self._model = model
-#
-#     def move(self):
-#         super().move()
-#
-#
-# car = Car('BMW')
-# car.move()
 
 
-# class Vehicle:
-#
-#     def move(self):
-#         raise NotImplementedError
-#
-#
-# class Car(Vehicle):
-#
-#     def __init__(self, model):
-#         self._model = model
-#
-#     def move(self):
-#         print('123')
-#
-#
-#
-# car = Car('BMW')
-# car.move()
-#
+class Vehicle(ABC):
+
+    @abstractmethod
+    def move(self):
+        print("moving")
 
 
-# class Vehicle(ABC):
-#
-#     @abstractmethod
-#     def move(self):
-#         print("moving")
-#
-#     def get_fuel(self):
-#         return self._fuel
-#
-#
-# class Car(Vehicle):
-#
-#     def __init__(self, model, fuel=0):
-#         self._model = model
-#         self._fuel = fuel
-#
-#     def move(self):
-#         super().move()
-#
-#
-# car = Car('BMW')
-# car.move()
-# car.get_fuel()
+class Car(Vehicle):
 
-#
-# class PropertyEaxsample:
-#
-#     def __init__(self, x):
-#         self._x = x
+    def __init__(self, model):
+        self._model = model
 
-    # @property
-    # def x(self):
-    #     return self._x
-    #
-    # @x.setter
-    # def x(self, value):
-    #     self._x = value
-    #
-    # @x.deleter
-    # def x(self):
-    #     del self._x
-    # def set_x(self, value):
-    #     self._x = value
-    #
-    # def get_x(self):
-    #     return self._x
-    #
-    # x = property(get_x, set_x)
+    def move(self):
+        super().move()
 
-#
-#
-# obj = PropertyEaxsample(10)
-#
-# obj.x = 99
-#
-# print(obj.x)
+
+car = Car('BMW')
+car.move()
+
+
+class Vehicle:
+
+    def move(self):
+        raise NotImplementedError
+
+
+class Car(Vehicle):
+
+    def __init__(self, model):
+        self._model = model
+
+    def move(self):
+        print('123')
+
+
+
+car = Car('BMW')
+car.move()
+
+
+
+class Vehicle(ABC):
+
+    @abstractmethod
+    def move(self):
+        print("moving")
+
+    def get_fuel(self):
+        return self._fuel
+
+
+class Car(Vehicle):
+
+    def __init__(self, model, fuel=0):
+        self._model = model
+        self._fuel = fuel
+
+    def move(self):
+        super().move()
+
+
+car = Car('BMW')
+car.move()
+car.get_fuel()
+
+
+class PropertyEaxsample:
+
+    def __init__(self, x):
+        self._x = x
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+
+    @x.deleter
+    def x(self):
+        del self._x
+
+    def set_x(self, value):
+        self._x = value
+
+    def get_x(self):
+        return self._x
+
+    x = property(get_x, set_x)
+
+
+
+obj = PropertyEaxsample(10)
+
+obj.x = 99
+
+print(obj.x)
 
 
 class DecoratorsExample:
