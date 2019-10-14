@@ -256,6 +256,7 @@ import re
 import datetime
 
 user_list = []
+post_dict = {}
 
 
 class SocialNetwork:
@@ -265,12 +266,32 @@ class SocialNetwork:
 
 class User:
     """user class"""
-    def __init__(self, name, password, nickname, admin=0, login=0):
+    def __init__(self, name, password, nickname, admin=0, login=0, post_list=None):
+        if post_list is None:
+            post_list = []
         self._name = name
         self._password = password
         self._nickname = nickname
         self._admin = admin
         self._login = login
+        self._date_registration = datetime.datetime.now().strftime('%Y%m%d')
+        self._post_list = post_list
+
+    def set_post(self, text):
+        post_dict.update({datetime.datetime.now().strftime('%Y%m%d'): text})
+        self._post_list.append(post_dict)
+        post_dict.clear()
+        return True
+
+    def get_posts(self):
+        return self._post_list
+
+    def get_list_posts(self):
+        for post in self._post_list:
+            print(post.items())
+
+    def get_date_registration(self):
+        return self._date_registration
 
     def set_name(self, value):
         self._name = value
@@ -281,7 +302,7 @@ class User:
     def del_name(self):
         del self._name
 
-    name = property(set_name, get_name, del_name)
+    name = property(get_name, set_name, del_name)
 
     def set_password(self, value):
         self._password = value
@@ -292,7 +313,7 @@ class User:
     def del_password(self):
         del self._password
 
-    password = property(set_password, get_password, del_password)
+    password = property(get_password, set_password, del_password)
 
     def set_nickname(self, value):
         self._nickname = value
@@ -303,7 +324,7 @@ class User:
     def del_nickname(self):
         del self._nickname
 
-    nickname = property(set_nickname, get_nickname, del_nickname)
+    nickname = property(get_nickname, set_nickname, del_nickname)
 
     def set_admin(self, value):
         self._admin = value
@@ -311,7 +332,7 @@ class User:
     def get_admin(self):
         return self._admin
 
-    admin = property(set_admin, get_admin)
+    admin = property(get_admin, set_admin)
 
     def is_admin(self):
         if self._admin == 1:
@@ -325,10 +346,11 @@ class User:
     def get_login(self):
         return self._login
 
-    login = property(set_login, get_login)
+    login = property(get_login, set_login)
 
 
 class Registration:
+    COUNT_USER = 0
     """class registration in social network"""
 
     def password_check(self, password):
@@ -366,25 +388,28 @@ class Registration:
 
     def check_user(self, value):
         for user in user_list:
-            if user.name == value:
+            if user.get_name == value:
                 return True
         return False
 
     def registration_new_user(self, name, password, nickname):
-        new_user = User
+        self.COUNT_USER += 1
 
         if self.check_user(name):
             print(f'This {name} already exists')
         else:
-            new_user.name = name
+            user_name = name
+            print('name', name)
 
         if self.password_check(password):
-            new_user.password = password
+            user_password = password
         else:
             print('password is bed')
-        user_list.append(new_user)
+        user_nickname = nickname
 
-        new_user.nickname = nickname
+        user = User(user_name, user_password, user_nickname)
+
+        user_list.append(user)
 
     def del_user(self, name):
         for user in user_list:
@@ -394,23 +419,35 @@ class Registration:
         return f'I cant find user {name}'
 
 
+class Login(User):
+
+    def login_user(self):
+        self.login = 1
+        return True
+
+    def logout_user(self):
+        self.login = 0
+
+    def check_user_is_login(self, user):
+        if user.login == 1:
+            return True
+        else:
+            return False
 
 
+a = 0
+while a < 1:
+    new_u_name = input('name =')
+    new_u_nik = input('nik = ')
+    new_u_pass = input('pass = ')
 
+    new_u = Registration()
+    new_u.registration_new_user(new_u_name, new_u_pass, new_u_nik)
 
-new_user_nik = input('nik = ')
-new_user_name = input('name =')
-new_user_pass = input('pass = ')
-new_user = Registration()
+    a += 1
 
-new_user.registration_new_user(new_user_name, new_user_pass, new_user_nik)
-
-new_user_nik = input('nik = ')
-new_user_name = input('name =')
-new_user_pass = input('pass = ')
-
-new_user = Registration()
-new_user.registration_new_user(new_user_name, new_user_pass, new_user_nik)
-
-
-
+for user in user_list:
+    print(user)
+    print(user.name)
+    print(user.login)
+    print(user.nickname)
