@@ -17,10 +17,12 @@
 
 import re
 import datetime
+import shelve
 
-user_list = []
-print(user_list)
-post_dict = {}
+#Admin
+##Admin1234!
+
+
 
 
 class SocialNetwork:
@@ -75,6 +77,7 @@ class Registration:
 
         if self.check_user():
             print(f'This {self.name} already exists')
+            return False
         else:
             user_name = True
 
@@ -82,63 +85,104 @@ class Registration:
             user_pass = True
         else:
             print(f'password {self.password} is bed')
+            return False
 
         if user_name is True and user_pass is True:
             user_list.append(self)
-        else:
-
-
+            with shelve.open(db_file) as db:
+                db['users'] = user_list
+            return True
 
     def del_user(self, name):
         for user in user_list:
             if user.name == name:
                 del user.name
+                with shelve.open(db_file) as db:
+                    db['user_list'] = user_list
                 return f'user {user.name} deleted'
         return f'I cant find user {name}'
 
 
-class Login:
+class Authorization:
 
     def login_user(self):
-        self.login = 1
-        return True
+        for user in user_list:
+            if user.name == self.name:
+                if user.password == self.password:
+                    user.login = 1
+                    print(f'Добро пожаловать {user.name} в сеть')
+                    return True
+                else:
+                    print('Вы ошиблись паролем')
+                    return False
+
+        print(f'Такого {self.name} пользователя нет.')
+        return False
 
     def logout_user(self):
         self.login = 0
 
-    def check_user_is_login(self, user):
-        if user.login == 1:
+    def check_user_is_login(self):
+        if self.login == 1:
             return True
         else:
             return False
 
 
+# class Blog:
+#
+#     def set_blog(self, text):
+#         date_create = datetime.datetime.now().strftime('%Y%m%d')
+#         with shelve.open(db_file) as db:
+#             post_dict.update({date_create: text})
+#
+#             db[f'{self.name}_post'] = []
+#             updete_user_post = db.get(f'{self.name}_post')
+#             print('1', updete_user_post)
+#             db[f'{self.name}_post'] = updete_user_post.append(post_dict)
+#             post_dict.clear()
+#         return print(date_create)
+#
+#     def get_blog(self):
+#         with shelve.open(db_file) as db:
+#             for blog in db.get(f'{self.name}_post'):
+#                 print(blog)
 
-class User(Registration, Login):
+class User(Registration, Authorization):
     """user class"""
-    def __init__(self, name, password, nickname, admin=0, login=0, post_list=None):
+    def __init__(self, name, password, admin=0, login=0, post_list=None):
         if post_list is None:
             post_list = []
         self._name = name
         self._password = password
-        self._nickname = nickname
         self._admin = admin
         self._login = login
         self._date_registration = datetime.datetime.now().strftime('%Y%m%d')
         self._post_list = post_list
 
+    def get_date_registration(self):
+        return self._date_registration
+
     def set_post(self, text):
         post_dict.update({datetime.datetime.now().strftime('%Y%m%d'): text})
+        with shelve.open(db_file) as db:
+            self._post_list = db.get(f'{self.name}_post')
         self._post_list.append(post_dict)
+        with shelve.open(db_file) as db:
+            db[f'{self.name}_post'] = self._post_list
         post_dict.clear()
         return True
 
     def get_posts(self):
-        return self._post_list
+        with shelve.open(db_file) as db:
+            self._post_list = db.get(f'{self.name}_post')
+            return self._post_list
 
     def get_list_posts(self):
-        for post in self._post_list:
-            print(post.items())
+        with shelve.open(db_file) as db:
+            self._post_list = db.get(f'{self.name}_post')
+            for post in self._post_list:
+                print(post.items())
 
     def get_date_registration(self):
         return self._date_registration
@@ -165,17 +209,6 @@ class User(Registration, Login):
 
     password = property(get_password, set_password, del_password)
 
-    def set_nickname(self, value):
-        self._nickname = value
-
-    def get_nickname(self):
-        return self._nickname
-
-    def del_nickname(self):
-        del self._nickname
-
-    nickname = property(get_nickname, set_nickname, del_nickname)
-
     def set_admin(self, value):
         self._admin = value
 
@@ -199,37 +232,74 @@ class User(Registration, Login):
     login = property(get_login, set_login)
 
 
-a = 0
-while a < 2:
-    new_u_name = input('name =')
-    new_u_nik = input('nik = ')
-    new_u_pass = input('pass = ')
-    new_user1 = User(new_u_name, new_u_pass, new_u_nik)
-    new_user1.registration_new_user()
-    a += 1
 
-for user in user_list:
-    print(user.name)
-    print(user.password)
-    print(user.nickname)
+db_file = 'DB'
+user_list = []
+post_dict = {}
+
+with shelve.open(db_file) as db:
+    user_list = db.get('users')
+    for user in user_list:
+        print(user.name, user.password, user.get_admin())
 
 
+with shelve.open(db_file) as db:
+    print((db.get('Dima_post')))
+
+while True:
+
+    print('вы попали в программку социальная сеть')
+    print('Вы хотите ввойти?')
+    print('')
+
+    answer = input('Введите свой ответ в формате "Y" или "N":').upper()
+
+    while answer not in ('Y', 'N'):
+        print('Вы ввели неверное значение!')
+        answer = input('Введите свой ответ в формате "Y" или "N":').upper()
+
+    if answer == 'Y':
+        print('Введите свой логин и пароль')
+        in_login = input('name =')
+        in_pass = input('pass = ')
+
+        user_log = User(in_login, in_pass)
+        if user_log.login_user() == False:
+            continue
+        print(user_log.is_admin())
+        print(user_log.get_admin())
+        if user_log.is_admin() == True:
+
+            print('Все пользователи')
+            for user in user_list:
+                print(f'У Вас есть ползователь {user.name} датой регистрации {user.get_date_registration()}')
+                user.get_list_posts()
 
 
+        answer = input('хотите разместить новую статью "Y" или "N":').upper()
+        while answer not in ('Y', 'N'):
+            print('Вы ввели неверное значение!')
+            answer = input('Введите свой ответ в формате "Y" или "N":').upper()
 
-# a = 0
-# while a < 1:
-#     new_u_name = input('name =')
-#     new_u_nik = input('nik = ')
-#     new_u_pass = input('pass = ')
-#
-#     new_u = Registration()
-#     new_u.registration_new_user(new_u_name, new_u_pass, new_u_nik)
-#
-#     a += 1
-#
-# for user in user_list:
-#     print(user)
-#     print(user.name)
-#     print(user.login)
-#     print(user.nickname)
+        if answer == 'Y':
+            text = input('введите ваш текст')
+            user_log.set_post(text)
+
+        else:
+            answer = input('хотите выйти "Y" или "N":').upper()
+            while answer not in ('Y', 'N'):
+                print('Вы ввели неверное значение!')
+                answer = input('Введите свой ответ в формате "Y" или "N":').upper()
+
+            if answer == 'Y':
+                user_log.logout_user()
+                print('Пока')
+
+
+    else:
+        print('Тогда вы хотите пройти регистрацию')
+        new_user_name = input('name =')
+        new_user_pass = input('pass = ')
+        new_user = User(new_user_name, new_user_pass)
+        if new_user.registration_new_user():
+            print("спасибо за регистрацию")
