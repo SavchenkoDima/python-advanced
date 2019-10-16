@@ -88,9 +88,8 @@ class Registration:
             return False
 
         if user_name is True and user_pass is True:
-            user_list.append(self)
             with shelve.open(db_file) as db:
-                db['users'] = user_list
+                db[self.name] = self
             return True
 
     def del_user(self, name):
@@ -106,8 +105,12 @@ class Registration:
 class Authorization:
 
     def login_user(self):
-        for user in user_list:
-            if user.name == self.name:
+        with shelve.open(db_file) as db:
+            user = db.get(self.name, None)
+            if user == None:
+                print(f'Такого {self.name} пользователя нет.')
+                return False
+            elif user.name == self.name:
                 if user.password == self.password:
                     user.login = 1
                     print(f'Добро пожаловать {user.name} в сеть')
@@ -115,7 +118,6 @@ class Authorization:
                 else:
                     print('Вы ошиблись паролем')
                     return False
-
         print(f'Такого {self.name} пользователя нет.')
         return False
 
@@ -165,8 +167,6 @@ class User(Registration, Authorization):
 
     def set_post(self, text):
         post_dict.update({datetime.datetime.now().strftime('%Y%m%d'): text})
-        with shelve.open(db_file) as db:
-            self._post_list = db.get(f'{self.name}_post')
         self._post_list.append(post_dict)
         with shelve.open(db_file) as db:
             db[f'{self.name}_post'] = self._post_list
@@ -231,28 +231,41 @@ class User(Registration, Authorization):
 
     login = property(get_login, set_login)
 
+    def save_user(self):
+        with shelve.open(db_file) as db:
+            db[self.name] = self
+
+    def load_user(self):
+        with shelve.open(db_file) as db:
+            return db.get(self.name)
+
+    def update_user(self):
+        with shelve.open(db_file) as db:
+            db[self.name] = self
+
+    def print_list_user(self):
+
 
 
 db_file = 'DB'
 user_list = []
 post_dict = {}
 
-with shelve.open(db_file) as db:
-    user_list = db.get('users')
-    for user in user_list:
-        print(user.name, user.password, user.get_admin())
-
-
-with shelve.open(db_file) as db:
-    print((db.get('Dima_post')))
-
+# with shelve.open(db_file) as db:
+#     user_list = db.get('users')
+#     for user in user_list:
+#         print(user.name, user.password, user.get_admin())
+#
+#
+# with shelve.open(db_file) as db:
+#     print((db.get('Dima_post')))
+i = 0
 while True:
-
     print('вы попали в программку социальная сеть')
-    print('Вы хотите ввойти?')
+    print('Вы хотите ввойти в сеть или зарегистрироваться?')
     print('')
 
-    answer = input('Введите свой ответ в формате "Y" или "N":').upper()
+    answer = input('Введите свой ответ в формате "Y" - войти  или "N" зарегистрироваться:').upper()
 
     while answer not in ('Y', 'N'):
         print('Вы ввели неверное значение!')
@@ -262,19 +275,21 @@ while True:
         print('Введите свой логин и пароль')
         in_login = input('name =')
         in_pass = input('pass = ')
-
-        user_log = User(in_login, in_pass)
+        user_log = User(in_login, in_pass,admin=1)
         if user_log.login_user() == False:
             continue
-        print(user_log.is_admin())
-        print(user_log.get_admin())
+        user_log.save_user()
+        print('')
+        print('Admin', user_log.is_admin())
+        print('')
+        print('Admin = ', user_log.get_admin())
+        print('')
         if user_log.is_admin() == True:
-
             print('Все пользователи')
+
             for user in user_list:
                 print(f'У Вас есть ползователь {user.name} датой регистрации {user.get_date_registration()}')
                 user.get_list_posts()
-
 
         answer = input('хотите разместить новую статью "Y" или "N":').upper()
         while answer not in ('Y', 'N'):
@@ -284,6 +299,7 @@ while True:
         if answer == 'Y':
             text = input('введите ваш текст')
             user_log.set_post(text)
+            user_log.save_user()
 
         else:
             answer = input('хотите выйти "Y" или "N":').upper()
