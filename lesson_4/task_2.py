@@ -92,14 +92,10 @@ class Registration:
                 db[self.name] = self
             return True
 
-    def del_user(self, name):
-        for user in user_list:
-            if user.name == name:
-                del user.name
-                with shelve.open(db_file) as db:
-                    db['user_list'] = user_list
-                return f'user {user.name} deleted'
-        return f'I cant find user {name}'
+    def del_user(self):
+        with shelve.open(db_file) as db:
+            del db[self.name]
+            return f'user {self.name} deleted'
 
 
 class Authorization:
@@ -114,7 +110,7 @@ class Authorization:
                 if user.password == self.password:
                     user.login = 1
                     print(f'Добро пожаловать {user.name} в сеть')
-                    return True
+                    return True,
                 else:
                     print('Вы ошиблись паролем')
                     return False
@@ -130,25 +126,6 @@ class Authorization:
         else:
             return False
 
-
-# class Blog:
-#
-#     def set_blog(self, text):
-#         date_create = datetime.datetime.now().strftime('%Y%m%d')
-#         with shelve.open(db_file) as db:
-#             post_dict.update({date_create: text})
-#
-#             db[f'{self.name}_post'] = []
-#             updete_user_post = db.get(f'{self.name}_post')
-#             print('1', updete_user_post)
-#             db[f'{self.name}_post'] = updete_user_post.append(post_dict)
-#             post_dict.clear()
-#         return print(date_create)
-#
-#     def get_blog(self):
-#         with shelve.open(db_file) as db:
-#             for blog in db.get(f'{self.name}_post'):
-#                 print(blog)
 
 class User(Registration, Authorization):
     """user class"""
@@ -183,9 +160,6 @@ class User(Registration, Authorization):
             self._post_list = db.get(f'{self.name}_post')
             for post in self._post_list:
                 print(post.items())
-
-    def get_date_registration(self):
-        return self._date_registration
 
     def set_name(self, value):
         self._name = value
@@ -244,6 +218,9 @@ class User(Registration, Authorization):
             db[self.name] = self
 
     def print_list_user(self):
+        with shelve.open(db_file) as db:
+            for user in db.items():
+                print(f'У Вас есть ползователь {user[1].name} датой регистрации {user[1].get_date_registration()}')
 
 
 
@@ -251,15 +228,6 @@ db_file = 'DB'
 user_list = []
 post_dict = {}
 
-# with shelve.open(db_file) as db:
-#     user_list = db.get('users')
-#     for user in user_list:
-#         print(user.name, user.password, user.get_admin())
-#
-#
-# with shelve.open(db_file) as db:
-#     print((db.get('Dima_post')))
-i = 0
 while True:
     print('вы попали в программку социальная сеть')
     print('Вы хотите ввойти в сеть или зарегистрироваться?')
@@ -275,7 +243,8 @@ while True:
         print('Введите свой логин и пароль')
         in_login = input('name =')
         in_pass = input('pass = ')
-        user_log = User(in_login, in_pass,admin=1)
+        user_log = User(in_login, in_pass)
+
         if user_log.login_user() == False:
             continue
         user_log.save_user()
@@ -286,10 +255,9 @@ while True:
         print('')
         if user_log.is_admin() == True:
             print('Все пользователи')
-
-            for user in user_list:
-                print(f'У Вас есть ползователь {user.name} датой регистрации {user.get_date_registration()}')
-                user.get_list_posts()
+            user_log.print_list_user()
+            #print(f'У Вас есть ползователь {user.name} датой регистрации {user.get_date_registration()}')
+            #user.get_list_posts()
 
         answer = input('хотите разместить новую статью "Y" или "N":').upper()
         while answer not in ('Y', 'N'):
