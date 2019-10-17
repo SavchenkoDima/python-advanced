@@ -19,15 +19,18 @@ import re
 import datetime
 import shelve
 
-#Admin
-##Admin1234!
+"""
+Admin
+Admin1234!
+
+Dima
+Dima1234!
+"""
 
 
 
 
-class SocialNetwork:
-    """class about social network"""
-    pass
+
 
 class Registration:
     COUNT_USER = 0
@@ -67,8 +70,8 @@ class Registration:
         return password_ok
 
     def check_user(self):
-        for user in user_list:
-            if user.name == self.name:
+        with shelve.open(db_file) as db:
+            if self.name in db.keys():
                 return True
         return False
 
@@ -110,7 +113,7 @@ class Authorization:
                 if user.password == self.password:
                     user.login = 1
                     print(f'Добро пожаловать {user.name} в сеть')
-                    return True,
+                    return True
                 else:
                     print('Вы ошиблись паролем')
                     return False
@@ -145,21 +148,22 @@ class User(Registration, Authorization):
     def set_post(self, text):
         post_dict.update({datetime.datetime.now().strftime('%Y%m%d'): text})
         self._post_list.append(post_dict)
+        print(self._post_list)
         with shelve.open(db_file) as db:
-            db[f'{self.name}_post'] = self._post_list
+            db[self.name] = self
         post_dict.clear()
         return True
 
     def get_posts(self):
         with shelve.open(db_file) as db:
-            self._post_list = db.get(f'{self.name}_post')
+            self._post_list = db.get(self.name)
             return self._post_list
 
     def get_list_posts(self):
         with shelve.open(db_file) as db:
-            self._post_list = db.get(f'{self.name}_post')
-            for post in self._post_list:
-                print(post.items())
+            user = db.get(self.name)
+            for post in user._post_list:
+                print(post)
 
     def set_name(self, value):
         self._name = value
@@ -229,10 +233,10 @@ user_list = []
 post_dict = {}
 
 while True:
+    print('')
     print('вы попали в программку социальная сеть')
     print('Вы хотите ввойти в сеть или зарегистрироваться?')
     print('')
-
     answer = input('Введите свой ответ в формате "Y" - войти  или "N" зарегистрироваться:').upper()
 
     while answer not in ('Y', 'N'):
@@ -243,11 +247,12 @@ while True:
         print('Введите свой логин и пароль')
         in_login = input('name =')
         in_pass = input('pass = ')
-        user_log = User(in_login, in_pass)
+        in_admin = input('admin (0,1)= ')
 
+        user_log = User(in_login, in_pass, admin=int(in_admin))
         if user_log.login_user() == False:
             continue
-        user_log.save_user()
+
         print('')
         print('Admin', user_log.is_admin())
         print('')
@@ -256,8 +261,6 @@ while True:
         if user_log.is_admin() == True:
             print('Все пользователи')
             user_log.print_list_user()
-            #print(f'У Вас есть ползователь {user.name} датой регистрации {user.get_date_registration()}')
-            #user.get_list_posts()
 
         answer = input('хотите разместить новую статью "Y" или "N":').upper()
         while answer not in ('Y', 'N'):
