@@ -15,8 +15,10 @@ class WorkerResurse(Resource):
     def post(self):
         return jsonify(**{'method': 'post'})
 
-    def put(self):
-        return jsonify(**{'method': 'put'})
+    def put(self, id):
+        obj = Person.objects(id=id).get()
+        obj.update(**request.json)
+        return PersonSchema().dump(obj.reload())
 
     def delete(self):
         return jsonify(**{'method': 'delete'})
