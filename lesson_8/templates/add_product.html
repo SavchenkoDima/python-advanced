@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Add category
+{% endblock %}
+
+{% block content %}
+
+    <form class="col-4" action="/admin/create-product/" method="POST">
+        <p><b>Form add new category</b></p>
+            <input type="text" name="name_product"> New name category<br>
+            <input type="text" name="quantity"> quantity<br>
+            <input type="text" name="price"> price<br>
+            <p><input type="radio" name="bool" > product_for_sale <br>
+            <p> Select a category </p>
+            <div class="col-2">
+               <p><select class="form-control form-control-sm" name="category">
+                {% for category in data %}
+                    <option> {{ category.name_category }} </option>
+                {% endfor %}
+                </select></p>
+            </div>
+
+            <p><input type="submit"></p>
+    </form>
+
+{% endblock %}

@@ -1,8 +1,10 @@
 from marshmallow import fields, Schema, validates, ValidationError
 
+
 class LocationSchema(Schema):
     city = fields.String()
     street = fields.String()
+
 
 class PersonSchema(Schema):
     id = fields.String()

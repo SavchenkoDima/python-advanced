@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Add category
+{% endblock %}
+
+{% block content %}
+
+    <form action="/admin/create-category/" method="POST">
+        <p><b>Form add new category</b></p>
+            <input type="text" name="name_category"> New name category<br>
+        <p><input type="submit"></p>
+    </form>
+
+{% endblock %}
