@@ -17,10 +17,14 @@ class Category(Document):
     title = StringField(max_length=255, required=True)
     description = StringField(max_length=512)
     subcategory = ListField(ReferenceField('self'))
+    is_main_category = BooleanField(default=False)
 
     @property
     def is_parent(self):
         return bool(self.subcategory)
+
+    def is_main(self):
+        return self.is_main_category
 
     @property
     def get_product(self, **kwargs):
