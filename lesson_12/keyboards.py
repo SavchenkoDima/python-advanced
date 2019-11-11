@@ -1,4 +1,5 @@
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
+    InlineKeyboardMarkup, InlineKeyboardButton
 
 beginning_kb = {
     'news': 'Последние новости',
@@ -6,6 +7,13 @@ beginning_kb = {
     'sales': 'Продукты со скидкой',
     'about': 'информация о магазине',
 }
+
+
+product_kb = {
+    'add to basket': 'Добавить в корзину',
+    'show basket': 'Показать корзину'
+}
+
 hideBoard = ReplyKeyboardRemove()  # if sent as reply_markup, will hide the keyboard
 
 
@@ -27,3 +35,23 @@ class ReplyKB(ReplyKeyboardMarkup, ReplyKeyboardRemove):
     def hide_keyboard(self):
         hide = ReplyKeyboardRemove()
         return hide
+
+
+class InlineKB(InlineKeyboardMarkup):
+
+    def __init__(self, iterable, named_arg, lookup_fields='id', title_fields='title',  row_width=3):
+        super().__init__(row_width=row_width)
+        self._iterable = iterable
+        self._named_arg = named_arg
+        self._lookup_fields = lookup_fields
+        self._title_fields = title_fields
+
+    def generate_kb(self):
+        buttons = []
+        for i in self._iterable:
+            buttons.append(InlineKeyboardButton(
+                text=getattr(i, self._title_fields),
+                callback_data=f'{self._named_arg}_' + str(getattr(i, self._lookup_fields))
+            ))
+        self.add(*buttons)
+        return self

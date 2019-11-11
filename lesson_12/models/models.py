@@ -6,6 +6,7 @@ connect('web_shop_bot')
 class Texts(Document):
     title = StringField(unique=True)
     body = StringField(max_length=4096)
+    photo_product = ImageField()
 
 
 class Properties(DynamicEmbeddedDocument):
@@ -23,8 +24,6 @@ class Category(Document):
     def is_parent(self):
         return bool(self.subcategory)
 
-    def is_main(self):
-        return self.is_main_category
 
     @property
     def get_product(self, **kwargs):
@@ -32,6 +31,10 @@ class Category(Document):
 
     def add_subcategory(self, obj):
         self.subcategory.append(obj)
+
+    @classmethod
+    def is_main(cls):
+        return cls.objects(is_main_category=True)
 
 
 class Product(Document):
@@ -42,6 +45,7 @@ class Product(Document):
     is_discount = BooleanField(default=False)
     properties = EmbeddedDocumentField(Properties)
     category = ReferenceField(Category)
+    photo_product = ImageField()
 
     @property
     def get_price(self):
@@ -52,3 +56,20 @@ class Product(Document):
     @classmethod
     def get_discount_products(cls, **kwargs):
         return cls.objects(is_discount=True)
+
+
+class Users(Document):
+    first_name = StringField(max_length=255, required=True)
+    username = StringField(max_length=255, required=True)
+    last_name = StringField(max_length=255, required=True)
+    user_id = IntField(required=True)
+    basket = ListField(ReferenceField(Product))
+
+    def add_product(self, obj):
+        """
+        :type obj: object
+        """
+        self.basket.append(obj)
+
+    def count_product(self):
+        return len(self.basket)
