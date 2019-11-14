@@ -1,4 +1,6 @@
 from mongoengine import *
+import datetime
+import time
 
 connect('web_shop_bot')
 
@@ -18,23 +20,29 @@ class Category(Document):
     title = StringField(max_length=255, required=True)
     description = StringField(max_length=512)
     subcategory = ListField(ReferenceField('self'))
-    is_main_category = BooleanField(default=False)
+    parent = ReferenceField('self')
 
     @property
     def is_parent(self):
         return bool(self.subcategory)
 
+    @property
+    def is_root(self):
+        return not bool(self.parent)
 
     @property
     def get_product(self, **kwargs):
         return Product.objects(category=self, **kwargs)
 
     def add_subcategory(self, obj):
+        obj.parent = self
+        obj.save()
         self.subcategory.append(obj)
+        self.save()
 
     @classmethod
-    def is_main(cls):
-        return cls.objects(is_main_category=True)
+    def get_root_categories(cls):
+        return cls.objects(parent=None)
 
 
 class Product(Document):
@@ -50,8 +58,8 @@ class Product(Document):
     @property
     def get_price(self):
         if self.is_discount:
-            return str(self.new_prise/100)
-        return str(self.price/100)
+            return str(self.new_prise / 100)
+        return str(self.price / 100)
 
     @classmethod
     def get_discount_products(cls, **kwargs):
@@ -73,3 +81,20 @@ class Users(Document):
 
     def count_product(self):
         return len(self.basket)
+
+
+class Basket(Document):
+    user = ReferenceField(Users)
+    basket_list = ListField(ReferenceField(Product))
+    bought = BooleanField(default=False)
+    bought_date = DateTimeField()
+
+    @property
+    def basket_closed(self):
+        self.bought = True
+        self.bought_date = datetime.datetime.now()
+        self.save()
+
+
+class BasketHistory(Document):
+    basket = ReferenceField(Basket)

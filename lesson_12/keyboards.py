@@ -1,5 +1,6 @@
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
+from models import models
 
 beginning_kb = {
     'news': 'Последние новости',
@@ -39,15 +40,24 @@ class ReplyKB(ReplyKeyboardMarkup, ReplyKeyboardRemove):
 
 class InlineKB(InlineKeyboardMarkup):
 
-    def __init__(self, iterable, named_arg, lookup_fields='id', title_fields='title',  row_width=3):
+    queries = {
+        'root': models.Category.get_root_categories()
+    }
+
+    def __init__(self, named_arg, lookup_fields='id', title_fields='title',  row_width=3, iterable=None, key=None):
+        if all([iterable, key]):
+           raise ValueError('Only one of fields: iterable, key can by set')
         super().__init__(row_width=row_width)
         self._iterable = iterable
         self._named_arg = named_arg
         self._lookup_fields = lookup_fields
         self._title_fields = title_fields
+        self._query = self.queries.get(key)
 
     def generate_kb(self):
         buttons = []
+        if not self._iterable:
+            self._iterable = self._query
         for i in self._iterable:
             buttons.append(InlineKeyboardButton(
                 text=getattr(i, self._title_fields),
@@ -55,3 +65,9 @@ class InlineKB(InlineKeyboardMarkup):
             ))
         self.add(*buttons)
         return self
+
+    def generator_root_kb(self):
+        if not self._iterable:
+            self._iterable = models.Category.get_root_categories()
+            return self.generate_kb()
+        raise ValueError('iterable already set')
