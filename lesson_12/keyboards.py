@@ -14,6 +14,14 @@ product_kb = {
     'add to basket': 'Добавить в корзину',
     'show basket': 'Показать корзину'
 }
+basket_kb = {
+    'delete': 'Удалить товар из корзины',
+}
+
+basket_buy_kb = {
+    'Buy': 'Купить',
+    'clear': 'очистить корзину'
+}
 
 hideBoard = ReplyKeyboardRemove()  # if sent as reply_markup, will hide the keyboard
 
