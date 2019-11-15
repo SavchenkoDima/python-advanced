@@ -5,11 +5,23 @@ from models.models import Category, Product, Texts, Users, Basket, BasketHistory
 import keyboards
 from models import models
 from keyboards import ReplyKB
-
+from flask import Flask, request, abort
 bot = telebot.TeleBot(config.TOKEN)
+app = Flask(__name__)
+
+# Process webhook calls
+@app.route(config.handle_url, methods=['POST'])
+def webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        abort(403)
+
+
 hideBoard = ReplyKeyboardRemove()  # if sent as reply_markup, will hide the keyboard
-
-
 # @bot.message_handler(func=lambda message: message.text)
 # def test(message):
 #     print(message)
@@ -216,7 +228,11 @@ def delete_product(call):
 #
 
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    import time
+    bot.remove_webhook()
+    time.sleep(1)
+    bot.set_webhook(config.webhook_url)
+
     # try:
     #     basket = Basket.objects.get(user=user, bought=False)
     #     print(basket.total_cost())
