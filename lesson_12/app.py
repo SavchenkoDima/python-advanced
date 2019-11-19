@@ -10,7 +10,7 @@ bot = telebot.TeleBot(config.TOKEN)
 app = Flask(__name__)
 
 # Process webhook calls
-@app.route(config.handle_url, methods=['POST'])
+@app.route('/', methods=['POST'])
 def webhook():
     if request.headers.get('content-type') == 'application/json':
         json_string = request.get_data().decode('utf-8')
@@ -209,8 +209,8 @@ def delete_product(call):
     # keyboard = ReplyKB().generate_kb(*basket_kb.values())
     # bot.send_message(call.message.chat.id, '👍' ,reply_markup=keyboard)
     # print(call.data)
-
-
+#
+#
 #
 #
 # @bot.message_handler(func=lambda message: message.text == keyboards.beginning_kb['news'])
