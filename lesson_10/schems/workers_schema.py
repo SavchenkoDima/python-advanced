@@ -15,7 +15,6 @@ class PersonSchema(Schema):
     location = fields.Nested(LocationSchema)
 
     @validates('age')
-    def validate_ege(self, value):
-        if value > 65:
+    def validate_ege(self, age):
+        if age > 65:
             raise ValidationError('mast be less than 65')
-

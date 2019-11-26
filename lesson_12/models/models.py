@@ -1,6 +1,5 @@
 from mongoengine import *
 import datetime
-import time
 
 connect('web_shop_bot')
 
@@ -8,7 +7,6 @@ connect('web_shop_bot')
 class Texts(Document):
     title = StringField(unique=True)
     body = StringField(max_length=4096)
-    photo_product = ImageField()
 
 
 class Properties(DynamicEmbeddedDocument):
