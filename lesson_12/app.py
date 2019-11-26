@@ -17,7 +17,7 @@ api = Api(app)
 api.add_resource(CategoryResurse, '/Category/', '/Category/<string:id>')
 api.add_resource(ProductResurse, '/Product/', '/Product/<string:id>')
 
-# Process webhook calls
+#Process webhook calls
 @app.route('/', methods=['POST'])
 def webhook():
     if request.headers.get('content-type') == 'application/json':
@@ -160,6 +160,7 @@ def buy_basket(call):
     basket = Basket.objects.get(id=call.data.split('_')[1])
     basket.basket_closed
     BasketHistory(basket_list=basket).save()
+
     user.update(basket=basket)
     bot.send_message(chat_id=call.message.chat.id, text=f'Спасибо за покупку')
     print('buy_basket')
@@ -220,6 +221,7 @@ def inline(message):
 
 
 if __name__ == '__main__':
+    #bot.polling(none_stop=True, interval=0)
     import time
     bot.remove_webhook()
     time.sleep(1)
