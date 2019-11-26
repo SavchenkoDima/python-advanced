@@ -87,6 +87,17 @@ class Basket(Document):
     bought = BooleanField(default=False)
     bought_date = DateTimeField()
 
+    def add_product(self, obj):
+        """
+        :type obj: object
+        """
+        self.basket_list.append(obj)
+
+    def total_cost(self):
+        total_cost = 0
+        for product in self.basket_list:
+            total_cost = total_cost + product.get_price
+
     @property
     def basket_closed(self):
         self.bought = True
