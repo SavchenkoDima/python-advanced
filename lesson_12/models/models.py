@@ -69,7 +69,7 @@ class Users(Document):
     username = StringField(max_length=255, required=True)
     last_name = StringField(max_length=255, required=True)
     user_id = IntField(required=True)
-    basket = ListField(ReferenceField(Product))
+    basket = ListField(ReferenceField('Basket'))
 
     def add_product(self, obj):
         """
@@ -96,7 +96,8 @@ class Basket(Document):
     def total_cost(self):
         total_cost = 0
         for product in self.basket_list:
-            total_cost = total_cost + product.get_price
+            total_cost = total_cost + float(product.get_price)
+        return total_cost
 
     @property
     def basket_closed(self):
@@ -106,4 +107,4 @@ class Basket(Document):
 
 
 class BasketHistory(Document):
-    basket = ReferenceField(Basket)
+    basket_list = ReferenceField(Basket)
